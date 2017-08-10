@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+    <artifactId>Gateway-app-biz-parent</artifactId>
+    <groupId>com.Gateway.portal</groupId>
+    <version>1.0</version>
+  </parent>
+	<groupId>com.Gateway.portal</groupId>
+	<artifactId>Gateway-biz-service</artifactId>
+	<version>1.0</version>
+	<name>Gateway-biz-service</name>
+	<packaging>jar</packaging>
+	<url>http://maven.apache.org</url>
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+	<dependencies>
+		<dependency>
+			<groupId>com.Gateway.portal</groupId>
+			<artifactId>Gateway-common-dal</artifactId>
+			<version>1.0</version>
+		</dependency>
+		<!-- 分布式缓存 -->
+		<dependency>
+			<groupId>com.hazelcast</groupId>
+			<artifactId>hazelcast</artifactId>
+			<version>3.1.7</version>
+		</dependency>
+	</dependencies>
+</project>

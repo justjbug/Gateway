@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gateway.portal.model.cpi.CpiMethodParam">
+
+	<resultMap type="com.gateway.portal.model.cpi.CpiMethodParam"
+		id="CpiMethodParamResultMap">
+		<id property="id" column="id" />
+		<result property="methodId" column="method_id" />
+		<result property="paramName" column="param_name" />
+		<result property="paramType" column="param_type" />
+		<result property="paramDesc" column="param_desc" />
+		<result property="index" column="index" />
+		<result property="required" column="required" />
+		<result property="domain" column="domain" />
+		<result property="length" column="length" />
+	</resultMap>
+
+	<sql id="CpiMethodParam_common_condition">
+		<trim prefix="WHERE" prefixOverrides="AND">
+			<if test="methodId != null">
+				AND a.method_id = #{methodId}
+			</if>
+		</trim>
+	</sql>
+
+	<select id="query" resultMap="CpiMethodParamResultMap">
+		SELECT * FROM cpi_method_param a
+		<include refid="CpiMethodParam_common_condition" />
+		ORDER BY `index`
+	</select>
+
+	<select id="query_id" resultMap="CpiMethodParamResultMap">
+		SELECT * FROM
+		cpi_method_param a
+		WHERE a.id =
+		#{id}
+	</select>
+
+</mapper>

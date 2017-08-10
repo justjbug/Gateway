@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gateway.portal.model.product.Product">
+
+	<resultMap type="com.gateway.portal.model.product.Product" id="ProductResultMap">
+		<id property="id" column="id" />
+		<result property="name" column="name" />
+		<result property="code" column="code" />
+		<result property="createTime" column="create_time" />
+	</resultMap>
+
+	<sql id="Product_common_condition">
+		<trim prefix="WHERE" prefixOverrides="AND">
+			<if test="code != null">
+				AND a.code = #{code}
+			</if>
+			<if test="noId != null">
+				<![CDATA[AND a.id <> id]]>
+			</if>
+		</trim>
+	</sql>
+	<sql id="Product_common_group">
+		<trim prefix="GROUP BY" prefixOverrides=",">
+		</trim>
+	</sql>
+
+	<select id="query" resultMap="ProductResultMap">
+		SELECT * FROM product a
+		<include refid="Product_common_condition" />
+		<include refid="Product_common_group"></include>
+	</select>
+
+	<select id="query_id" resultMap="ProductResultMap">
+		SELECT * FROM
+		product a WHERE a.id =
+		#{id}
+	</select>
+
+	<delete id="delete" parameterType="com.gateway.portal.model.product.Product">
+		DELETE FROM product WHERE id =
+		#{id}
+	</delete>
+
+	<update id="update" parameterType="com.gateway.portal.model.product.Product">
+		UPDATE product
+		<trim prefix="SET" suffixOverrides=",">
+			<if test="name != null">
+				name = #{name},
+			</if>
+		</trim>
+		WHERE id = #{id}
+	</update>
+
+</mapper>

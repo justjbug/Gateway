@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gateway.portal.model.cpi.CpiMethod">
+
+	<resultMap type="com.gateway.portal.model.cpi.CpiMethod" id="CpiMethodResultMap">
+		<id property="id" column="id" />
+		<result property="name" column="name" />
+		<result property="apiName" column="api_name" />
+		<result property="apiVersion" column="api_version" />
+		<result property="packageName" column="package_name" />
+		<result property="rpcMethodName" column="rpc_method_name" />
+		<result property="open" column="open" />
+		<result property="logon" column="logon" />
+		<result property="mode" column="mode" />
+	</resultMap>
+
+	<sql id="CpiMethod_common_condition">
+		<trim prefix="WHERE" prefixOverrides="AND">
+			<if test="apiName != null">
+				AND a.api_name = #{apiName}
+			</if>
+			<if test="apiVersion != null">
+				AND a.api_version = #{apiVersion}
+			</if>
+			<if test="open != null">
+				AND a.open = #{open}
+			</if>
+			<if test="likeApiName != null">
+				AND a.api_name LIKE CONCAT(#{likeApiName},'%')
+			</if>
+		</trim>
+	</sql>
+	<sql id="CpiMethod_common_group">
+		<trim prefix="GROUP BY" prefixOverrides=",">
+		<!--<if test="packageNameGroup != null">-->
+		<!--, a.package_name -->
+		<!--</if>-->
+		</trim>
+	</sql>
+
+	<select id="query" resultMap="CpiMethodResultMap">
+		SELECT * FROM cpi_method a
+		<include refid="CpiMethod_common_condition" />
+		<include refid="CpiMethod_common_group"/>
+	</select>
+
+	<select id="count" resultType="int">
+		SELECT count(1) FROM cpi_method a
+		<include refid="CpiMethod_common_condition" />
+		<include refid="CpiMethod_common_group"/>
+	</select>
+
+	<select id="query_id" resultMap="CpiMethodResultMap">
+		SELECT * FROM
+		cpi_method a WHERE a.id =
+		#{id}
+	</select>
+
+</mapper>
