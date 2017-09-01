@@ -4,15 +4,11 @@
  */
 package com.gateway.portal.web.controller;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.*;
 
 import javax.annotation.Resource;
 
-import com.gateway.portal.biz.facade.CpiMethodFacade;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.context.annotation.Scope;
@@ -28,15 +24,12 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
 import com.gateway.common.model.Result;
 import com.gateway.portal.biz.bean.GatewayFactoryBean;
-import com.gateway.portal.biz.context.ParamClazzContext;
-import com.gateway.portal.biz.service.CpiMethodParamService;
-import com.gateway.portal.biz.service.CpiMethodService;
+import com.gateway.portal.biz.facade.CpiMethodFacade;
 import com.gateway.portal.core.utils.logger.LoggerUtils;
 import com.gateway.portal.dto.CpiMethodDTO;
 import com.gateway.portal.dto.CpiParamsDTO;
-import com.gateway.portal.model.cpi.CpiMethod;
-import com.gateway.portal.model.cpi.CpiMethodParam;
 import com.google.common.base.Joiner;
+import com.xiaoleilu.hutool.util.StrUtil;
 
 /**
  * 
@@ -56,6 +49,10 @@ public class GatewayController extends BaseController {
 	
 	private static final Logger	DEFAULT_LOGGER		= Logger.getLogger( GatewayController.class );
 	
+	private static final String	_Y					= "Y";
+	
+	private static final String	_N					= "N";
+	
 	/**
 	 * 网关入口
 	 * 
@@ -73,27 +70,33 @@ public class GatewayController extends BaseController {
 		
 		long allTime = System.currentTimeMillis();
 		if (StringUtils.isEmpty( method )) {
-			super.setFailMessage( result, "方法名不能为空！" );
+			// super.setFailMessage( result, );
+			result.setMessage( "方法名不能为空！" );
 			return result;
 		}
 		if (StringUtils.isEmpty( version )) {
-			super.setFailMessage( result, "接口版本号不能为空！" );
+			// super.setFailMessage( result, "接口版本号不能为空！" );
 			return result;
 		}
 		
-		CpiMethodDTO methodDTO = this.cpiMethodFacade.getCpimethodDTO( method, version );
+		CpiMethodDTO methodDTO = this.cpiMethodFacade.getCpiMethodDTO( method, version );
 		if (methodDTO == null) {
-			super.setFailMessage( result, "该方法不存在或未开放！" );
+			result.setMessage( "该方法不存在或未开放！" );
 			return result;
 		}
 		
-		List<Object> paramsValue = new ArrayList<Object>();
-		List<String> paramsType = new ArrayList<String>();
-		if (StringUtils.equals( methodDTO.getLogon(), "Y" )) {
-			if (StringUtils.isEmpty( sso )) {
-				super.setFailMessage( result, "sso不能为空！" );
+		List<Object> paramsValue = new ArrayList<>();
+		List<String> paramsType = new ArrayList<>();
+		if (StrUtil.equals( methodDTO.getLogon(), _Y )) {
+			if (StrUtil.isEmpty( sso )) {
+				result.setMessage( "sso不能为空！" );
 				return result;
 			}
+		}
+		
+		if (StrUtil.equals( methodDTO.getOpen(), _N )) {
+			result.setMessage( "该方法未开放！" );
+			return result;
 		}
 		// 使用隐式传参方式 将sso token传入服务
 		RpcContext.getContext().setAttachment( "sso", sso );
@@ -104,29 +107,23 @@ public class GatewayController extends BaseController {
 			try {
 				json = JSONObject.parseObject( bizParams );
 			} catch (Exception e) {
-				super.setFailMessage( result, "bizParams解析错误！" );
+				result.setMessage( "bizParams解析错误！" );
 				return result;
 			}
-			for (int i = 0; i < paramList.size(); i++) {
-				CpiParamsDTO p = paramList.get( i );
+			for (CpiParamsDTO p : paramList) {
 				paramsType.add( p.getClazz() );
 				// 是否是自定义对象
 				try {
-					if (StringUtils.equals( p.getDomain(), "N" )) {
-						Object value = null;
-						try {
-							value = json.getObject( p.getName(), Class.forName( p.getClazz() ) );
-						} catch (ClassNotFoundException e) {
-							super.setFailMessage( result, p.getName() + "参数类型错误！" );
-							return result;
-						}
-						if (StringUtils.equals( p.getRequired(), "Y" ) && value == null) {
-							super.setFailMessage( result, p.getName() + "不能为空！" );
+					if (StrUtil.equals( p.getDomain(), _N )) {
+						Object value = json.getObject( p.getName(), Class.forName( p.getClazz() ) );
+						
+						if (StrUtil.equals( p.getRequired(), _Y ) && value == null) {
+							result.setMessage( p.getName() + "不能为空！" );
 							return result;
 						}
 						if (value instanceof String) {
 							if (p.getLength() != null && p.getLength() < String.valueOf( value ).length()) {
-								super.setFailMessage( result, p.getName() + "过长" );
+								result.setMessage( p.getName() + "长度大于" + p.getLength() + "位字符！" );
 								return result;
 							}
 						}
@@ -137,10 +134,13 @@ public class GatewayController extends BaseController {
 						paramsValue.add( domain );
 					}
 				} catch (NullPointerException e) {
-					if (StringUtils.equals( p.getRequired(), "Y" )) {
-						super.setFailMessage( result, p.getName() + "不能为空！" );
+					if (StringUtils.equals( p.getRequired(), _Y )) {
+						result.setMessage( p.getName() + "不能为空！" );
 						return result;
 					}
+				} catch (ClassNotFoundException e) {
+					result.setMessage( p.getName() + "参数类型错误！" );
+					return result;
 				}
 			}
 		}
@@ -148,7 +148,7 @@ public class GatewayController extends BaseController {
 		try {
 			long rpcTime = System.currentTimeMillis();
 			String genericKey = Joiner.on( '_' ).join( methodDTO.getApiName(), methodDTO.getApiVersion() );
-			GenericService genericService = this.gatewayFactoryBean.getRpcInvokeService( genericKey );
+			GenericService genericService = this.gatewayFactoryBean.getGenericService( genericKey );
 			String[] strings = new String[paramsType.size()];
 			paramsType.toArray( strings );
 			Object o = genericService.$invoke( methodDTO.getMethodName(), strings, paramsValue.toArray() );
@@ -158,10 +158,12 @@ public class GatewayController extends BaseController {
 			}
 			DEFAULT_LOGGER.info( "rpc request method [" + methodDTO.getApiName() + "] time [" + (System.currentTimeMillis() - rpcTime) + "ms]" );
 		} catch (RpcException e) {
-			super.setFailMessage( result, "网络繁忙，请稍候再试！", "100001" );
+			result.setMessage( "网络繁忙，请稍候再试！" );
+			result.setCode( "100001" );
 			LoggerUtils.defaultPrint( e, "rpc request method [" + methodDTO.getApiName() + "]" );
 		} catch (Exception e) {
-			super.setFailMessage( result, "网络繁忙，请稍候再试！", "100001" );
+			result.setCode( "100001" );
+			result.setMessage( "网络繁忙，请稍候再试！" );
 			LoggerUtils.defaultPrint( e, "rpc request method [" + methodDTO.getApiName() + "]" );
 		}
 		DEFAULT_LOGGER.info( "all request method [" + methodDTO.getApiName() + "] time [" + (System.currentTimeMillis() - allTime) + "ms]" );
@@ -179,7 +181,7 @@ public class GatewayController extends BaseController {
 		if (object == null) {
 			return null;
 		}
-
+		
 		if (object instanceof Map) {// 对象删除
 			Map<Object, Object> objMap = (Map) object;
 			objMap.remove( "class" );
@@ -205,8 +207,7 @@ public class GatewayController extends BaseController {
 		} else {// 其他直接返回
 			return object;
 		}
-
+		
 	}
-
-
+	
 }

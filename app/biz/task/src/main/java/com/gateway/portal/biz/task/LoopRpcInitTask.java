@@ -4,28 +4,20 @@
  */
 package com.gateway.portal.biz.task;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
+import com.gateway.portal.biz.bean.GatewayFactoryBean;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.log4j.Logger;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import com.alibaba.dubbo.config.*;
-import com.alibaba.dubbo.rpc.service.GenericService;
 import com.gateway.portal.biz.service.CpiMethodService;
-import com.gateway.portal.core.utils.common.LoadConfig;
-import com.gateway.portal.core.utils.logger.LoggerUtils;
-import com.gateway.portal.core.utils.spring.BeanUtils;
 import com.gateway.portal.model.cpi.CpiMethod;
-import com.google.common.base.Joiner;
 
 /**
  * 扫描通知服务
@@ -38,38 +30,39 @@ public class LoopRpcInitTask {
 	
 	@Resource
 	private CpiMethodService	cpiMethodService;
+
 	@Resource
-	private BeanUtils			beanUtils;
+	private GatewayFactoryBean gatewayFactoryBean;
 	
-	private static final String	BEAN_NAME		= "_rpcInvokeMap";
+//	private static final String	BEAN_NAME		= "_rpcInvokeMap";
 
 
-	private ConcurrentHashMap<String, GenericService> GENERIC_SERVICE = new ConcurrentHashMap<>();
-
-	private ConcurrentHashMap<String, ReferenceConfig<GenericService>> referenceConfigCache = new ConcurrentHashMap<>();
-
-	private ApplicationConfig applicationConfig;
-	private RegistryConfig registryConfig;
-	private ConsumerConfig consumerConfig;
-	private static final Integer DEFAULT_TIMEOUT = 5000;
-
-	private static final Logger	INIT_RPC_LOGGER	= Logger.getLogger( LoopRpcInitTask.class );
+//	private ConcurrentHashMap<String, GenericService> GENERIC_SERVICE = new ConcurrentHashMap<>();
+//
+//	private ConcurrentHashMap<String, ReferenceConfig<GenericService>> referenceConfigCache = new ConcurrentHashMap<>();
+//
+//	private ApplicationConfig applicationConfig;
+//	private RegistryConfig registryConfig;
+//	private ConsumerConfig consumerConfig;
+//	private static final Integer DEFAULT_TIMEOUT = 5000;
+//
+//	private static final Logger	INIT_RPC_LOGGER	= Logger.getLogger( LoopRpcInitTask.class );
 
 	@PostConstruct
 	public void init() {
-		beanUtils.addBean( ConcurrentHashMap.class.getName(), BEAN_NAME, null );
-		GENERIC_SERVICE = beanUtils.getBean(BEAN_NAME, ConcurrentHashMap.class);
-		//
-		applicationConfig = new ApplicationConfig("xkhstar-server-provider");
-		//
-		String connectionUrl = LoadConfig.getInstance().getValue( "zookeeper.ip.config" );
-		registryConfig = new RegistryConfig( connectionUrl );
-		registryConfig.setProtocol( "zookeeper" );
-		//
-		consumerConfig = new ConsumerConfig();
-		consumerConfig.setCheck(false);
-		consumerConfig.setSticky(true);
-		consumerConfig.setLoadbalance("consistenthash");
+//		beanUtils.addBean( ConcurrentHashMap.class.getName(), BEAN_NAME, null );
+//		GENERIC_SERVICE = beanUtils.getBean(BEAN_NAME, ConcurrentHashMap.class);
+//		//
+//		applicationConfig = new ApplicationConfig("xkhstar-server-provider");
+//		//
+//		String connectionUrl = LoadConfig.getInstance().getValue( "zookeeper.ip.config" );
+//		registryConfig = new RegistryConfig( connectionUrl );
+//		registryConfig.setProtocol( "zookeeper" );
+//		//
+//		consumerConfig = new ConsumerConfig();
+//		consumerConfig.setCheck(false);
+//		consumerConfig.setSticky(true);
+//		consumerConfig.setLoadbalance("consistenthash");
 
 		refresh();
 	}
@@ -84,47 +77,48 @@ public class LoopRpcInitTask {
 			String interfaceName;
 			String dubboVersion;
 			for (CpiMethod p : datas) {
-				String genericKey = Joiner.on('_').join(p.getApiName(), p.getApiVersion());
-				if (GENERIC_SERVICE.get( genericKey ) != null) {
-					continue;
-				}
-				try {
-					interfaceName = p.getPackageName();
-					dubboVersion = p.getApiVersion();
-					String key = Joiner.on('_').join(interfaceName, dubboVersion);
-					ReferenceConfig<GenericService> reference;
-					//防止创建过多的ReferenceConfig, 因为api是基于方法的，而 GenericService 是基于dubbo服务提供的接口和版本的
-					if (referenceConfigCache.containsKey(key)) {
-						reference = referenceConfigCache.get(key);
-					} else {
-						reference = new ReferenceConfig<GenericService>();
-						reference.setInterface(interfaceName);
-						reference.setGeneric(true);
-						reference.setApplication(applicationConfig);
-						reference.setRegistry(registryConfig);
-						reference.setConsumer(consumerConfig);
-						//reference.setProtocol("dubbo");
-						reference.setVersion(dubboVersion);
-
-						referenceConfigCache.put(key, reference);
-					}
-
-					List<MethodConfig> methods = reference.getMethods();
-					if (methods == null) {
-						methods = new ArrayList<>();
-					}
-					MethodConfig methodConfig = new MethodConfig();
-					methodConfig.setName(p.getRpcMethodName());
-					methodConfig.setTimeout(DEFAULT_TIMEOUT);
-					methods.add(methodConfig);
-					reference.setMethods(methods);
-
-					GENERIC_SERVICE.put(genericKey, reference.get());
-
-					INIT_RPC_LOGGER.info( "新增rpc远程接口-->" + genericKey );
-				} catch (Exception e) {
-					LoggerUtils.defaultPrint( e, "初始化rpc远程调用失败，原因：" );
-				}
+				this.gatewayFactoryBean.buildGenericService(p);
+//				String genericKey = Joiner.on('_').join(p.getApiName(), p.getApiVersion());
+//				if (GENERIC_SERVICE.get( genericKey ) != null) {
+//					continue;
+//				}
+//				try {
+//					interfaceName = p.getPackageName();
+//					dubboVersion = p.getApiVersion();
+//					String key = Joiner.on('_').join(interfaceName, dubboVersion);
+//					ReferenceConfig<GenericService> reference;
+//					//防止创建过多的ReferenceConfig, 因为api是基于方法的，而 GenericService 是基于dubbo服务提供的接口和版本的
+//					if (referenceConfigCache.containsKey(key)) {
+//						reference = referenceConfigCache.get(key);
+//					} else {
+//						reference = new ReferenceConfig<GenericService>();
+//						reference.setInterface(interfaceName);
+//						reference.setGeneric(true);
+//						reference.setApplication(applicationConfig);
+//						reference.setRegistry(registryConfig);
+//						reference.setConsumer(consumerConfig);
+//						//reference.setProtocol("dubbo");
+//						reference.setVersion(dubboVersion);
+//
+//						referenceConfigCache.put(key, reference);
+//					}
+//
+//					List<MethodConfig> methods = reference.getMethods();
+//					if (methods == null) {
+//						methods = new ArrayList<>();
+//					}
+//					MethodConfig methodConfig = new MethodConfig();
+//					methodConfig.setName(p.getRpcMethodName());
+//					methodConfig.setTimeout(DEFAULT_TIMEOUT);
+//					methods.add(methodConfig);
+//					reference.setMethods(methods);
+//
+//					GENERIC_SERVICE.put(genericKey, reference.get());
+//
+//					INIT_RPC_LOGGER.info( "新增rpc远程接口-->" + genericKey );
+//				} catch (Exception e) {
+//					LoggerUtils.defaultPrint( e, "初始化rpc远程调用失败，原因：" );
+//				}
 			}
 		}
 	}

@@ -1,8 +1,7 @@
-package com.gateway.portal.web.controller.admin;
+package com.gateway.portal.web.controller.admin.group;
 
-import com.gateway.portal.biz.facade.ProductFacade;
-import com.gateway.portal.dto.ProductIntroductionDTO;
-import com.gateway.portal.model.product.Product;
+import com.gateway.portal.biz.facade.GroupMethodFacade;
+import com.gateway.portal.dto.GroupIntroductionDTO;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,17 +17,17 @@ import java.util.List;
  */
 @Controller
 @Scope("prototype")
-public class IndexController {
+public class GroupListController {
 
     @Resource
-    private ProductFacade productFacade;
+    private GroupMethodFacade groupMethodFacade;
 
-    @RequestMapping(value = "/index", method = { RequestMethod.GET })
+    @RequestMapping(value = "/admin/group/list", method = { RequestMethod.GET })
     public ModelAndView index() {
         ModelAndView result = new ModelAndView();
-        List<ProductIntroductionDTO> productList = this.productFacade.queryProductIntroductionDTOByPage(-1,-1);
+        List<GroupIntroductionDTO> groupList = this.groupMethodFacade.queryGroupIntroductionDTOByPage(-1,-1);
 
-        result.addObject("productList",productList);
+        result.addObject("data",groupList);
         return result;
     }
 }

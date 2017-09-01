@@ -22,7 +22,27 @@ public class CpiMethodDTO implements Serializable {
 	
 	private String				packageName;
 	
+	private String				open;
+	
 	private List<CpiParamsDTO>	params;
+	
+	/**
+	 * Gets open.
+	 *
+	 * @return the open
+	 */
+	public String getOpen() {
+		return open;
+	}
+	
+	/**
+	 * Sets open.
+	 *
+	 * @param open the open
+	 */
+	public void setOpen(String open) {
+		this.open = open;
+	}
 	
 	/**
 	 * Gets method name.

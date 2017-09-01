@@ -9,10 +9,12 @@ import java.io.Serializable;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import com.gateway.portal.model.ResultModel;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.gateway.common.model.Result;
+import org.springframework.web.servlet.ModelAndView;
 
 
 /**
@@ -40,24 +42,19 @@ public class BaseController implements Serializable {
 	/**
 	 * set信息
 	 * 
-	 * @param modelAndView
 	 * @param message
 	 */
-	protected void setFailMessage(Result result, String message, String... code) {
-		result.setSuccess( false );
-		result.setMessage( message );
+	protected void setFailMessage(ModelAndView result, String message, String... code) {
+		result.addObject("success",false);
+		result.addObject("message",message);
 		if (code.length != 0) {
 			result.addObject( "code", code[ 0 ] );
 		}
 	}
 	
-	/**
-	 * @param modelAndView
-	 * @param status
-	 */
-	protected void setSuccessful(Result result, String message) {
-		result.setSuccess( true );
-		result.setMessage( message );
+	protected void setSuccessful(ModelAndView result, String message) {
+		result.addObject("success",true);
+		result.addObject("message",message);
 		result.addObject( "code", "000000" );
 	}
 	
@@ -99,6 +96,15 @@ public class BaseController implements Serializable {
 	
 	protected String getVersion() {
 		return this.request.getHeader( "version" );
+	}
+
+
+	protected void setResultModel(ModelAndView mv , ResultModel rm){
+		if(rm.isSuccess()){
+			this.setSuccessful(mv,rm.getMessage());
+		}else {
+			this.setFailMessage(mv,rm.getMessage());
+		}
 	}
 	
 }

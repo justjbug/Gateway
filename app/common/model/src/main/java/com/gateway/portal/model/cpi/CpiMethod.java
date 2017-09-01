@@ -35,6 +35,26 @@ public class CpiMethod implements Serializable {
 	
 	private String				mode;
 	
+	private String				desc;
+	
+	/**
+	 * Gets desc.
+	 *
+	 * @return the desc
+	 */
+	public String getDesc() {
+		return desc;
+	}
+	
+	/**
+	 * Sets desc.
+	 *
+	 * @param desc the desc
+	 */
+	public void setDesc(String desc) {
+		this.desc = desc;
+	}
+	
 	/**
 	 * Getter method for property <tt>mode</tt>.
 	 *

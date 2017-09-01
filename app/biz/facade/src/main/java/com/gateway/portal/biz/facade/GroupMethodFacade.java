@@ -1,8 +1,7 @@
 package com.gateway.portal.biz.facade;
 
-import com.gateway.portal.dto.ProductIntroductionDTO;
+import com.gateway.portal.dto.GroupIntroductionDTO;
 import com.gateway.portal.model.ResultModel;
-import com.gateway.portal.model.product.Product;
 
 import java.util.List;
 
@@ -10,7 +9,7 @@ import java.util.List;
  * @author
  * @version $$Id: , v 0.1    Exp $$
  */
-public interface ProductFacade {
+public interface GroupMethodFacade {
 
 
     /**
@@ -19,14 +18,14 @@ public interface ProductFacade {
      * @param code
      * @return
      */
-    ResultModel<String> createProduct(String name,String code);
+    ResultModel<String> createGroup(String name, String code);
 
     /**
      * 删除id
      * @param id
      * @return
      */
-    ResultModel<String> deleteProduct(Integer id);
+    ResultModel<String> deleteGroup(Integer id);
 
 
     /**
@@ -35,7 +34,7 @@ public interface ProductFacade {
      * @param pageSize
      * @return
      */
-    List<ProductIntroductionDTO> queryProductIntroductionDTOByPage(Integer currPage, Integer pageSize);
+    List<GroupIntroductionDTO> queryGroupIntroductionDTOByPage(Integer currPage, Integer pageSize);
 
 
     /**
@@ -45,5 +44,5 @@ public interface ProductFacade {
      * @param code
      * @return
      */
-    ResultModel<String> updateProduct(Integer id,String name,String code);
+    ResultModel<String> updateGreoup(Integer id, String name, String code);
 }

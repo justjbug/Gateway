@@ -12,6 +12,7 @@
 		<result property="open" column="open" />
 		<result property="logon" column="logon" />
 		<result property="mode" column="mode" />
+		<result property="desc" column="desc" />
 	</resultMap>
 
 	<sql id="CpiMethod_common_condition">
@@ -26,28 +27,36 @@
 				AND a.open = #{open}
 			</if>
 			<if test="likeApiName != null">
-				AND a.api_name LIKE CONCAT(#{likeApiName},'%')
+				AND a.api_name LIKE CONCAT('%',#{likeApiName},'%')
+			</if>
+			<if test="likeName != null">
+				AND a.name LIKE CONCAT('%',#{likeName},'%')
 			</if>
 		</trim>
 	</sql>
-	<sql id="CpiMethod_common_group">
-		<trim prefix="GROUP BY" prefixOverrides=",">
-		<!--<if test="packageNameGroup != null">-->
-		<!--, a.package_name -->
-		<!--</if>-->
-		</trim>
-	</sql>
+	<!--<sql id="CpiMethod_common_group">-->
+		<!--<trim prefix="GROUP BY" prefixOverrides=",">-->
+		<!--&lt;!&ndash;<if test="packageNameGroup != null">&ndash;&gt;-->
+		<!--&lt;!&ndash;, a.package_name &ndash;&gt;-->
+		<!--&lt;!&ndash;</if>&ndash;&gt;-->
+		<!--</trim>-->
+	<!--</sql>-->
+
+	<insert id="add" parameterType="com.gateway.portal.model.cpi.CpiMethod" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO cpi_method
+		(`name`,api_name,api_version,package_name,rpc_method_name,`open`,logon,mode,`desc`) VALUES
+		(#{name},#{apiName},#{apiVersion},#{packageName},#{rpcMethodName},#{open},#{logon},#{mode},#{desc})
+	</insert>
 
 	<select id="query" resultMap="CpiMethodResultMap">
 		SELECT * FROM cpi_method a
 		<include refid="CpiMethod_common_condition" />
-		<include refid="CpiMethod_common_group"/>
+		ORDER by a.id DESC
 	</select>
 
 	<select id="count" resultType="int">
 		SELECT count(1) FROM cpi_method a
 		<include refid="CpiMethod_common_condition" />
-		<include refid="CpiMethod_common_group"/>
 	</select>
 
 	<select id="query_id" resultMap="CpiMethodResultMap">
@@ -55,5 +64,43 @@
 		cpi_method a WHERE a.id =
 		#{id}
 	</select>
+
+	<delete id="delete" parameterType="com.gateway.portal.model.cpi.CpiMethod">
+		DELETE FROM cpi_method WHERE id = #{id}
+	</delete>
+
+	<update id="update" parameterType="com.gateway.portal.model.cpi.CpiMethod">
+		UPDATE cpi_method
+		<trim prefix="SET" suffixOverrides=",">
+			<if test="name != null">
+				`name` = #{name},
+			</if>
+			<if test="apiName != null">
+				api_name = #{apiName},
+			</if>
+			<if test="apiVersion != null">
+				api_version = #{apiVersion},
+			</if>
+			<if test="packageName != null">
+				package_name = #{packageName},
+			</if>
+			<if test="rpcMethodName != null">
+				rpc_method_name = #{rpcMethodName},
+			</if>
+			<if test="open != null">
+				`open` = #{open},
+			</if>
+			<if test="logon != null">
+				logon = #{logon},
+			</if>
+			<if test="mode != null">
+				mode = #{mode},
+			</if>
+			<if test="desc != null">
+				`desc` = #{desc},
+			</if>
+		</trim>
+		WHERE id = #{id}
+	</update>
 
 </mapper>

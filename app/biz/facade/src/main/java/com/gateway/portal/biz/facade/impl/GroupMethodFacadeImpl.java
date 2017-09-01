@@ -1,12 +1,11 @@
 package com.gateway.portal.biz.facade.impl;
 
-import com.gateway.portal.biz.facade.ProductFacade;
+import com.gateway.portal.biz.facade.GroupMethodFacade;
 import com.gateway.portal.biz.service.CpiMethodService;
-import com.gateway.portal.biz.service.ProductService;
-import com.gateway.portal.dto.ProductIntroductionDTO;
+import com.gateway.portal.biz.service.GroupMethodService;
+import com.gateway.portal.dto.GroupIntroductionDTO;
 import com.gateway.portal.model.ResultModel;
-import com.gateway.portal.model.product.Product;
-import com.xiaoleilu.hutool.util.ArrayUtil;
+import com.gateway.portal.model.group.GroupMethod;
 import com.xiaoleilu.hutool.util.CollectionUtil;
 import org.springframework.stereotype.Service;
 
@@ -21,29 +20,29 @@ import java.util.Map;
  * @author
  * @version $$Id: , v 0.1    Exp $$
  */
-@Service("productFacade")
-public class ProductFacadeImpl implements ProductFacade{
+@Service("groupMethodFacade")
+public class GroupMethodFacadeImpl implements GroupMethodFacade {
 
     @Resource
-    private ProductService productService;
+    private GroupMethodService groupMethodService;
     @Resource
     private CpiMethodService cpiMethodService;
     @Override
-    public ResultModel<String> createProduct(String name, String code) {
+    public ResultModel<String> createGroup(String name, String code) {
         ResultModel<String> result = new ResultModel<>();
 
         Map<String,Object> params = new HashMap<>();
         params.put("code",code);
-        int count = this.productService.queryByCount(params);
+        int count = this.groupMethodService.queryByCount(params);
         if(count > 0){
             result.setMessage("code已存在！");
             return result;
         }
 
-        Product product = new Product();
-        product.setName(name);
-        product.setCode(code);
-        int flag = (int)this.productService.create(product);
+        GroupMethod groupMethod = new GroupMethod();
+        groupMethod.setName(name);
+        groupMethod.setCode(code);
+        int flag = (int)this.groupMethodService.create(groupMethod);
         if(flag > 0){
             result.setMessage("添加成功！");
             result.setSuccess(true);
@@ -54,12 +53,12 @@ public class ProductFacadeImpl implements ProductFacade{
     }
 
     @Override
-    public ResultModel<String> deleteProduct(Integer id) {
+    public ResultModel<String> deleteGroup(Integer id) {
         ResultModel<String> result = new ResultModel<>();
 
-        Product p = new Product();
+        GroupMethod p = new GroupMethod();
         p.setId(id);
-        int flag = this.productService.delete(p,false);
+        int flag = this.groupMethodService.delete(p,false);
         if(flag > 0){
             //TODO 删除项目后，是否要删除接口
             result.setMessage("删除成功！");
@@ -71,41 +70,41 @@ public class ProductFacadeImpl implements ProductFacade{
     }
 
     @Override
-    public List<ProductIntroductionDTO> queryProductIntroductionDTOByPage(Integer currPage, Integer pageSize) {
-        List<Product> datas = this.productService.queryByPage(null,currPage,pageSize);
-        List<ProductIntroductionDTO> result = new ArrayList<>();
+    public List<GroupIntroductionDTO> queryGroupIntroductionDTOByPage(Integer currPage, Integer pageSize) {
+        List<GroupMethod> datas = this.groupMethodService.queryByPage(null,currPage,pageSize);
+        List<GroupIntroductionDTO> result = new ArrayList<>();
         if(CollectionUtil.isNotEmpty(datas)){
-            for (Product product : datas) {
+            for (GroupMethod groupMethod : datas) {
                 Map<String,Object> params = new HashMap<>();
-                params.put("likeApiName",product.getCode());
+                params.put("likeApiName", groupMethod.getCode());
                 int interfaceCount = this.cpiMethodService.queryByCount(params);
                 Integer count = 54342983;
                 DecimalFormat df = new DecimalFormat("#,###");
                 String requestCount = df.format(count);
-                result.add(new ProductIntroductionDTO(product.getId(),product.getName(),product.getCode(),interfaceCount,requestCount));
+                result.add(new GroupIntroductionDTO(groupMethod.getId(), groupMethod.getName(), groupMethod.getCode(),interfaceCount,requestCount));
             }
         }
         return result;
     }
 
     @Override
-    public ResultModel<String> updateProduct(Integer id, String name, String code) {
+    public ResultModel<String> updateGreoup(Integer id, String name, String code) {
         ResultModel<String> result = new ResultModel<>();
 
         Map<String,Object> params = new HashMap<>();
         params.put("code",code);
         params.put("noId",id);
-        int count = this.productService.queryByCount(params);
+        int count = this.groupMethodService.queryByCount(params);
         if(count > 0){
             result.setMessage("code已存在！");
             return result;
         }
 
-        Product p = new Product();
+        GroupMethod p = new GroupMethod();
         p.setId(id);
         p.setName(name);
         p.setCode(code);
-        int flag = this.productService.update(p);
+        int flag = this.groupMethodService.update(p);
         if(flag > 0){
             //TODO 更新后是否级联更新接口
             result.setMessage("更新成功！");

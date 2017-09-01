@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gateway.portal.model.group.GroupMethod">
+
+	<resultMap type="com.gateway.portal.model.group.GroupMethod" id="GroupMethodResultMap">
+		<id property="id" column="id" />
+		<result property="name" column="name" />
+		<result property="code" column="code" />
+		<result property="createTime" column="create_time" />
+	</resultMap>
+
+	<sql id="GreoupMethod_common_condition">
+		<trim prefix="WHERE" prefixOverrides="AND">
+			<if test="code != null">
+				AND a.code = #{code}
+			</if>
+			<if test="noId != null">
+				<![CDATA[AND a.id <> id]]>
+			</if>
+		</trim>
+	</sql>
+	<sql id="GreoupMethod_common_group">
+		<trim prefix="GROUP BY" prefixOverrides=",">
+		</trim>
+	</sql>
+
+	<select id="query" resultMap="GroupMethodResultMap">
+		SELECT * FROM group_method a
+		<include refid="GreoupMethod_common_condition" />
+		<include refid="GreoupMethod_common_group"></include>
+	</select>
+
+	<select id="count" resultType="int">
+		SELECT COUNT(1) FROM group_method a
+		<include refid="GreoupMethod_common_condition" />
+		<include refid="GreoupMethod_common_group"></include>
+	</select>
+
+	<select id="query_id" resultMap="GroupMethodResultMap">
+		SELECT * FROM
+		group_method a WHERE a.id =
+		#{id}
+	</select>
+
+	<insert id="add" parameterType="com.gateway.portal.model.group.GroupMethod" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO group_method (`name`,code) VALUES (#{name},#{code})
+	</insert>
+
+	<delete id="delete" parameterType="com.gateway.portal.model.group.GroupMethod">
+		DELETE FROM group_method WHERE id =
+		#{id}
+	</delete>
+
+	<update id="update" parameterType="com.gateway.portal.model.group.GroupMethod">
+		UPDATE group_method
+		<trim prefix="SET" suffixOverrides=",">
+			<if test="name != null">
+				name = #{name},
+			</if>
+		</trim>
+		WHERE id = #{id}
+	</update>
+
+</mapper>

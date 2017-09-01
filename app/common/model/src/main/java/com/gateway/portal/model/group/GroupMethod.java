@@ -1,15 +1,15 @@
-package com.gateway.portal.model.product;
+package com.gateway.portal.model.group;
 
 import java.io.Serializable;
 import java.util.Date;
 
 /**
- * The type Product.
+ * The type GroupMethod.
  *
  * @author
  * @version $$Id : , v 0.1 Exp $$
  */
-public class Product implements Serializable {
+public class GroupMethod implements Serializable {
 	
 	private Integer	id;
 	

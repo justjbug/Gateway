@@ -29,11 +29,65 @@
 		ORDER BY `index`
 	</select>
 
+	<select id="count" resultType="int">
+		SELECT count(1) FROM cpi_method_param a
+		<include refid="CpiMethodParam_common_condition" />
+	</select>
+
 	<select id="query_id" resultMap="CpiMethodParamResultMap">
 		SELECT * FROM
 		cpi_method_param a
 		WHERE a.id =
 		#{id}
 	</select>
+
+	<insert id="add" parameterType="com.gateway.portal.model.cpi.CpiMethodParam" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO cpi_method_param
+		(method_id,param_name,param_type,param_desc,`index`,required,`domain`,`length`) VALUES
+		(#{methodId},#{paramName},#{paramType},#{paramDesc},#{index},#{required},#{domain},#{length})
+	</insert>
+
+	<delete id="delete" parameterType="com.gateway.portal.model.cpi.CpiMethodParam">
+		DELETE FROM cpi_method_param
+		<trim prefix="WHERE" prefixOverrides="AND">
+			<if test="id != null">
+				AND id = #{id}
+			</if>
+			<if test="methodId != null">
+				AND method_id = #{methodId}
+			</if>
+		</trim>
+	</delete>
+
+	<update id="update" parameterType="com.gateway.portal.model.cpi.CpiMethodParam">
+		UPDATE cpi_method_param
+		<trim prefix="SET" suffixOverrides=",">
+			<if test="methodId != null">
+				method_id = #{methodId},
+			</if>
+			<if test="paramName != null">
+				param_name = #{paramName},
+			</if>
+			<if test="paramType != null">
+				param_type = #{paramType},
+			</if>
+			<if test="paramDesc != null">
+				param_desc = #{paramDesc},
+			</if>
+			<if test="index != null">
+				`index` = #{index},
+			</if>
+			<if test="required != null">
+				required = #{required},
+			</if>
+			<if test="domain != null">
+				`domain` = #{domain},
+			</if>
+			<if test="length != null">
+				`length` = #{length},
+			</if>
+		</trim>
+		WHERE id = #{id}
+	</update>
 
 </mapper>

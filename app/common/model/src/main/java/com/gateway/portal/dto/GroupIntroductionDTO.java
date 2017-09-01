@@ -3,15 +3,15 @@ package com.gateway.portal.dto;
 import java.io.Serializable;
 
 /**
- * The type Product introduction dto.
+ * The type GroupMethod introduction dto.
  *
  * @author
  * @version $$Id : , v 0.1 Exp $$
  */
-public class ProductIntroductionDTO implements Serializable {
+public class GroupIntroductionDTO implements Serializable {
 	
 	/** 产品id */
-	private Integer	productId;
+	private Integer	id;
 	
 	/** 产品名称 */
 	private String	name;
@@ -26,21 +26,21 @@ public class ProductIntroductionDTO implements Serializable {
 	private String	requestCount;
 	
 	/**
-	 * Gets product id.
+	 * Gets id.
 	 *
-	 * @return the product id
+	 * @return the id
 	 */
-	public Integer getProductId() {
-		return productId;
+	public Integer getId() {
+		return id;
 	}
 	
 	/**
-	 * Sets product id.
+	 * Sets id.
 	 *
-	 * @param productId the product id
+	 * @param id the id
 	 */
-	public void setProductId(Integer productId) {
-		this.productId = productId;
+	public void setId(Integer id) {
+		this.id = id;
 	}
 	
 	/**
@@ -116,16 +116,16 @@ public class ProductIntroductionDTO implements Serializable {
 	}
 	
 	/**
-	 * Instantiates a new Product introduction dto.
+	 * Instantiates a new GroupMethod introduction dto.
 	 *
-	 * @param productId the product id
+	 * @param id the group id
 	 * @param name the name
 	 * @param code the code
 	 * @param interfaceCount the interface count
 	 * @param requestCount the request count
 	 */
-	public ProductIntroductionDTO(Integer productId, String name, String code, Integer interfaceCount, String requestCount) {
-		this.productId = productId;
+	public GroupIntroductionDTO(Integer id, String name, String code, Integer interfaceCount, String requestCount) {
+		this.id = id;
 		this.name = name;
 		this.code = code;
 		this.interfaceCount = interfaceCount;

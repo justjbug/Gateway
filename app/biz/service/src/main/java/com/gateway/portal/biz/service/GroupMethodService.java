@@ -1,13 +1,13 @@
 package com.gateway.portal.biz.service;
 
 import com.gateway.portal.core.service.BaseService;
-import com.gateway.portal.model.product.Product;
+import com.gateway.portal.model.group.GroupMethod;
 
 /**
  * @author
  * @version $$Id: , v 0.1    Exp $$
  */
-public interface ProductService extends BaseService<Product>{
+public interface GroupMethodService extends BaseService<GroupMethod>{
 
 
 }
